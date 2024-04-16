@@ -1,0 +1,21 @@
+---
+title: "Almond Yields"
+author: "Ben Versteeg, Hope Hahn"
+output: html_document
+date: "2024-04-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Tasks:
+-- Develop a profit model for your almond yield (you can make this up; think about what the parameters would be) 
+- you might assume a baseline profit and then adjust according to the anomaly 
+- there are many ways to combine the almond yield and profit functions;you can have the profit function “call”/use the almond  yield function; or create a wrapper function that calls them in sequence (first the almond yield and then the profit function) 
+
+-- Do a simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+
+-- Create 2 graphs of the results - you can decide what is the most meaningful graph
+
+-- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
