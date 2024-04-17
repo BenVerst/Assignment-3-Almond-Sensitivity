@@ -19,3 +19,6 @@ Tasks:
 -- Create 2 graphs of the results - you can decide what is the most meaningful graph
 
 -- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
+
+
+
