@@ -7,6 +7,8 @@ date: "2024-04-12"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
 ```
 
 Tasks:
@@ -21,4 +23,11 @@ Tasks:
 -- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
 
 
+
+
+
+# Call the almond profit function
+```{r}
+source("almond_profit.R")
+```
 

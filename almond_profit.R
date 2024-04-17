@@ -16,13 +16,13 @@
 
 source(almond_function.R)
 
-function(precip, min_temp, acre = 5, price_per_pound, clim = "data/clim.txt"){
+function(precip, min_temp, acre = 5, price_per_pound = 200, clim = "data/clim.txt"){
   
   require(tidyverse)
   
   yield_anom <- almond_yield_fun(precip, min_temp)
   
-  (acre * 1000 * price_per_pound) + yield_anom
+  (acre * price_per_pound * yield_anom)
   
   
 }
