@@ -17,8 +17,6 @@ almond_yield_fun <- function(min_temp, precip) {
   
   # Create a data frame to store maximum, minimum, and mean yield anomalies
   df <- data.frame(
-    max(yield_anomoly),
-    min(yield_anomoly),
     mean(yield_anomoly)
   )
   

@@ -1,28 +1,30 @@
 #' Function: almond_profit()
 #' Description: Calculates profit from almond yield anomoly
 #' Inputs:
-#'   @param price_per_pound:
-#'   @param acre:
+#'   @param price_per_pound: Price of almonds per pound (lbs)
+#'   @param acre: size of the farm (acres)
 #'   @param precip: total precipitation of January (millimeters)
 #'   @param min_temp: minimum daily temperature of February (degrees Celsius)
+#'   @param average_yield: the average or expected yield (lbs per acre)
 #'  
 #' Output:
-#'   df:
+#'   @return profit: value for profit amount based on the above parameters.
 #'   
 #'   
 #'   
 #'   
 
 
-source(almond_function.R)
+source("almond_function.R") # Only using the mean yield anomaly
 
-function(precip, min_temp, acre = 5, price_per_pound = 200, clim = "data/clim.txt"){
+almond_profit_fun <- function(precip, min_temp, acre = 30, price_per_pound = 250, average_yield = 2000){
   
   require(tidyverse)
   
   yield_anom <- almond_yield_fun(precip, min_temp)
   
-  (acre * price_per_pound * yield_anom)
+   profit <- ((average_yield + yield_anom) * acre) * price_per_pound
   
-  
+   # Return the data frame containing profit amount
+   return(profit)
 }

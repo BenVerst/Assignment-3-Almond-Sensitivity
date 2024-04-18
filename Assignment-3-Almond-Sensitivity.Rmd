@@ -2,7 +2,7 @@
 title: "Almond Yields"
 author: "Ben Versteeg, Hope Hahn"
 output: html_document
-date: "2024-04-12"
+date: "2024-04-18"
 ---
 
 ```{r setup, include=FALSE}
@@ -26,8 +26,117 @@ Tasks:
 
 
 
-# Call the almond profit function
+## Call the almond profit function
 ```{r}
+# Load the R script containing the almond_profit_fun function
 source("almond_profit.R")
 ```
+
+## Running the almond profit model
+```{r}
+# Read the CSV file
+jan_alm <- read_csv(here::here("data/clim.txt")) %>%
+
+  # Split the single column into multiple columns based on quotes
+  separate(col = "day month year wy tmax_c tmin_c precip",
+           into = c("day", "month", "year", "wy", "tmax_c", "tmin_c", "precip"),
+           sep = " ") %>%
+
+  # Convert columns to numeric
+  mutate(year = as.numeric(year),
+         tmin_c = as.numeric(tmin_c),
+         precip = as.numeric(precip)) %>%
+
+  # Group the data by year and month
+  group_by(year, month) %>%
+
+  # Keep only the rows where month equals 1 (January)
+  filter(month == 1) %>%
+
+  # Compute the total precipitation for each year in January
+  summarise(precip_sum = sum(precip, na.rm = TRUE))
+
+```
+
+
+```{r}
+# Read the CSV file 
+feb_alm <- read_csv(here::here("data/clim.txt")) %>%
+
+  # Split the single column into multiple columns based on quotes
+  separate(col = "day month year wy tmax_c tmin_c precip",
+           into = c("day", "month", "year", "wy", "tmax_c", "tmin_c", "precip"),
+           sep = " ") %>%
+
+  # Convert columns to numeric 
+  mutate(year = as.numeric(year),
+         tmin_c = as.numeric(tmin_c),
+         precip = as.numeric(precip)) %>%
+
+  # Group the data by year and month
+  group_by(year, month) %>%
+
+  # Keep only the rows where month equals 2 (February)
+  filter(month == 2) %>%
+
+  # Compute the minimum temperature for each year in February
+  summarise(tempc_min = min(tmin_c, na.rm = TRUE))
+
+```
+
+
+```{r}
+# Calculate almond profit by passing February minimum temperatures and January precipitation sums as arguments to the almond_profit_fun function
+almond_profit_output <- almond_profit_fun(min_temp = feb_alm$tempc_min, precip = jan_alm$precip_sum)
+
+paste0("Profit = ", almond_profit_output)
+
+```
+
+## Simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+
+```{r}
+# Define ranges for acre and price_per_pound
+acre_range <- seq(20, 40, by = 2)  # Create a sequence of acre values 
+price_per_pound_range <- seq(200, 300, by = 25)  # Create a sequence of price per pound values 
+
+# Use expand.grid to create all possible combinations of acre, price_per_pound, and average_yield
+results <- expand.grid(acre = acre_range, price_per_pound = price_per_pound_range)
+
+results$profit <- NA  # Initialize a new column 'profit' in the results data frame with NA (missing values)
+
+# Loop over each row in the results data frame to calculate profits for each combination of parameters
+for (i in 1:nrow(results)) {
+  # Call the almond_profit_fun function for each combination of parameters.
+  profit <- almond_profit_fun(min_temp = feb_alm$tempc_min, precip = jan_alm$precip_sum,
+                              acre = results[i, "acre"], price_per_pound = results[i, "price_per_pound"])
+  # Store the computed profit in the corresponding row of the 'profit' column
+  results[i, "profit"] <- profit
+}
+
+```
+
+## Create 2 graphs of the results
+
+### First Graph
+```{r}
+# Visualize the results
+ggplot(results, aes(x = acre, y = price_per_pound, fill = profit)) +
+  geom_tile() +
+  scale_fill_gradient(low = "yellow", high = "red") +
+  labs(x = "Acre", y = "Price per Pound (USD)", fill = "Profit (USD)")
+```
+
+### Second Graph
+```{r}
+ggplot(results, aes(x = acre, y = profit)) +
+  geom_point() +
+  labs(y = "Profit (USD)", x = "Acre")
+```
+
+
+## Short paragraph
+
+
+
 
