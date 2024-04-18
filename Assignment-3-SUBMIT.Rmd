@@ -16,7 +16,7 @@ library(ggpubr)
 
 The goal of this assignment is to create a hypothetical function that will calculate almond farm profit based on yield anomalies, and then conduct an informal sensitivity analysis to see how the output (profit) reacts to changes in the parameters.
 
-Tasks:
+Tasks for this assignment:
 -- Develop a profit model for your almond yield (you can make this up; think about what the parameters would be) 
 
 -- Do a simple informal sensitivity analysis of almond yield profit using at least 2 parameters
@@ -25,8 +25,17 @@ Tasks:
 
 -- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
 
+**Outline**
 
-## Call the almond profit function
+* Call almond profit function
+* Read in and prepare the data
+* Running the Almond profit model with default values
+* Simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+  * & visualizations
+* Interpreting results
+
+
+### Call the almond profit function
 
 ```{r}
 # Load the R script containing the almond_profit_fun function
@@ -85,7 +94,7 @@ feb_alm <- read_csv(here::here("data/clim.txt")) %>%
 
 ```
 
-## Running the Almond profit model with default values.
+### Running the Almond profit model with default values
 
 ```{r}
 # Calculate almond profit by passing February minimum temperatures and January precipitation sums as arguments to the almond_profit_fun function
@@ -94,7 +103,7 @@ almond_profit_output <- almond_profit_fun(min_temp = feb_alm$tempc_min, precip =
 paste0("Profit = ", almond_profit_output)
 ```
 
-## Simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+### Simple informal sensitivity analysis of almond yield profit using at least 2 parameters
 
 ```{r}
 acre_range2 <- rnorm(mean = 30, sd = 1, n = 1000)  # Create a sequence of acre values 
@@ -141,7 +150,7 @@ ggplot(me, aes(y = profit)) +
        title = "Plot 2")
 ```
 
-## Interpreting Results
+### Interpreting Results
 
 Our hypothetical function shows that farm acreage, price per pound, average yield (lbs per acre), and yield anomaly all go into calculating a farm's profit from almonds. In this example, yield anomaly is added to average yield to see the effects of yield anomaly on profit. (Average yield + yield anomaly) defines the lbs of almonds the farmer will harvest/sell. All these factors are multiplicative to yield the profit. 
 
