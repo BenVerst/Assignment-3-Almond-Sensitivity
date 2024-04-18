@@ -9,21 +9,16 @@
 #'  
 #' Output:
 #'   @return profit: value for profit amount based on the above parameters.
-#'   
-#'   
-#'   
-#'   
-
 
 source("almond_function.R") # Only using the mean yield anomaly
 
-almond_profit_fun <- function(precip, min_temp, acre = 30, price_per_pound = 250, average_yield = 2000){
+almond_profit_fun <- function(precip, min_temp, acre = 30, price_per_pound = 2, average_yield = 2000){
   
   require(tidyverse)
   
   yield_anom <- almond_yield_fun(precip, min_temp)
   
-   profit <- ((average_yield + yield_anom) * acre) * price_per_pound
+  profit <- ((average_yield + yield_anom$mean.yield_anomaly.) * acre) * price_per_pound
   
    # Return the data frame containing profit amount
    return(profit)

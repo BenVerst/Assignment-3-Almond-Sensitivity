@@ -13,11 +13,13 @@
 almond_yield_fun <- function(min_temp, precip) {
   ####---require(whatever packages u need)
   # Calculate yield anomaly based on provided minimum temperature and precipitation data
-  yield_anomoly <- (-0.015 * min_temp) + (-0.0046 * (min_temp^2)) + (-0.07 * precip) + (0.0043 * (precip^2)) + 0.28
+  yield_anomaly <- (-0.015 * min_temp) + (-0.0046 * (min_temp^2)) + (-0.07 * precip) + (0.0043 * (precip^2)) + 0.28
   
   # Create a data frame to store maximum, minimum, and mean yield anomalies
   df <- data.frame(
-    mean(yield_anomoly)
+    min(yield_anomaly),
+    max(yield_anomaly),
+    mean(yield_anomaly)
   )
   
   # Return the data frame containing yield anomalies
