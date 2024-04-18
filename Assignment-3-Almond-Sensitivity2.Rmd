@@ -1,0 +1,151 @@
+---
+title: "Almond Profit - Informal Sensitivity Analysis"
+author: "Ben Versteeg, Hope Hahn"
+date: "2024-04-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(purrr)
+library(ggpubr)
+```
+## Overview
+
+The goal of this assignment is to create a hypothetical function that will calculate almond farm profit based on yield anomalies, and then conduct an informal sensitivity analysis to see how the output (profit) reacts to changes in the parameters.
+
+Tasks:
+-- Develop a profit model for your almond yield (you can make this up; think about what the parameters would be) 
+
+-- Do a simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+
+-- Create 2 graphs of the results - you can decide what is the most meaningful graph
+
+-- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
+
+
+## Call the almond profit function
+
+```{r}
+# Load the R script containing the almond_profit_fun function
+source("almond_profit.R")
+```
+
+## Read in and prepare the data
+
+```{r}
+# Read in the CSV file and clean the data
+jan_alm <- read_csv(here::here("data/clim.txt")) %>%
+
+  # Split the single column into multiple columns based on quotes
+  separate(col = "day month year wy tmax_c tmin_c precip",
+           into = c("day", "month", "year", "wy", "tmax_c", "tmin_c", "precip"),
+           sep = " ") %>%
+
+  # Convert columns to numeric
+  mutate(year = as.numeric(year),
+         tmin_c = as.numeric(tmin_c),
+         precip = as.numeric(precip)) %>%
+
+  # Group the data by year and month
+  group_by(year, month) %>%
+
+  # Keep only the rows where month equals 1 (January)
+  filter(month == 1) %>%
+
+  # Compute the total precipitation for each year in January
+  summarise(precip_sum = sum(precip, na.rm = TRUE))
+
+```
+
+```{r}
+# Read the CSV file 
+feb_alm <- read_csv(here::here("data/clim.txt")) %>%
+
+  # Split the single column into multiple columns based on quotes
+  separate(col = "day month year wy tmax_c tmin_c precip",
+           into = c("day", "month", "year", "wy", "tmax_c", "tmin_c", "precip"),
+           sep = " ") %>%
+
+  # Convert columns to numeric 
+  mutate(year = as.numeric(year),
+         tmin_c = as.numeric(tmin_c),
+         precip = as.numeric(precip)) %>%
+
+  # Group the data by year and month
+  group_by(year, month) %>%
+
+  # Keep only the rows where month equals 2 (February)
+  filter(month == 2) %>%
+
+  # Compute the minimum temperature for each year in February
+  summarise(tempc_min = min(tmin_c, na.rm = TRUE))
+
+```
+
+## Running the Almond profit model with default values.
+
+```{r}
+# Calculate almond profit by passing February minimum temperatures and January precipitation sums as arguments to the almond_profit_fun function
+almond_profit_output <- almond_profit_fun(min_temp = feb_alm$tempc_min, precip = jan_alm$precip_sum)
+
+paste0("Profit = ", almond_profit_output)
+```
+
+## Simple informal sensitivity analysis of almond yield profit using at least 2 parameters
+
+```{r}
+acre_range2 <- rnorm(mean = 30, sd = 1, n = 1000)  # Create a sequence of acre values 
+price_per_pound_range2 <- rnorm(2, sd = 0.1, n = 1000)  # Create a sequence of price per pound values 
+
+# bind them into df
+parms = cbind.data.frame(acre_range2, price_per_pound_range2)
+
+# using a for loop
+# start by creating a data structures to hold results
+mean_profit = rep(NA, times=10)
+
+# for loop with function
+for (i in 1:1000) {
+  res = almond_profit_fun(min_temp = feb_alm$tempc_min, 
+                          precip = jan_alm$precip_sum,
+                          acre = parms$acre_range2[i], 
+                          price_per_pound = parms$price_per_pound_range2[i],
+                          average_yield = 2000)
+  
+  mean_profit[i]= res
+}
+
+# plot
+me = cbind.data.frame(profit=mean_profit, parms)
+
+ggplot(me, aes(x = acre_range2, y = profit, col = price_per_pound_range2))+
+  geom_point(cex=2)+
+  labs(y="Profit (USD)", 
+       x="Acre", 
+       col = "price/lb (USD)",
+       title = "Plot 1a - Profit by Acre") 
+
+ggplot(me, aes(x = price_per_pound_range2, y = profit, col = acre_range2))+
+  geom_point(cex=2)+
+  labs(y="Profit (USD)", 
+       x="Price per pound (USD)", 
+       col = "acre",
+       title = "Plot 1b - Profit by Price per Pound")
+
+ggplot(me, aes(y = profit)) +
+  geom_boxplot() +
+  labs(y = "Profit (USD)",
+       title = "Plot 2")
+```
+
+## Interpreting Results
+
+Our hypothetical function shows that farm acreage, price per pound, average yield (lbs per acre), and yield anomaly all go into calculating a farm's profit from almonds. In this example, yield anomaly is added to average yield to see the effects of yield anomaly on profit. (Average yield + yield anomaly) defines the lbs of almonds the farmer will harvest/sell. All these factors are multiplicative to yield the profit. 
+
+For acre and price per pound, we are assuming that 30 acres and $2 per pound are the average values for these parameters. To sample across a range of parameters, we assume both of these are normally distributed, around these means, so most farms have 30 acres and make two dollars per pound of almonds. Randomly generating these parameters with a normal distribution and running them through our function allowed us to plot the graphs above. The first two plots (1a and 1b) are the most useful in visualizing how these parameters affect the outcome (profit). Both of these parameters are positively correlated with the outcome variable. As price per pound increases, so does profit, and as acreage increases, profit increases as well. However, the price per pound variable has a tighter distribution than the acre variable, which means that profit is more sensitive to changes in price per pound over acreage. The third graph (plot 2) shows the how variable the profit is with uncertainty in our parameters.
+
+
+

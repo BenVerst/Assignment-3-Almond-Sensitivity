@@ -1,5 +1,5 @@
 ---
-title: "Almond Yields"
+title: "Almond Profit - Informal Sensitivity Analysis"
 author: "Ben Versteeg, Hope Hahn"
 output: html_document
 date: "2024-04-18"
@@ -9,6 +9,8 @@ date: "2024-04-18"
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(purrr)
+library(ggpubr)
 ```
 
 Tasks:
@@ -23,18 +25,17 @@ Tasks:
 -- Write a short paragraph (in the Rmarkdown document) to summarize you interpretation of your model results (e.g what do ‘take away’ from your model and sensitivity analysis
 
 
-
-
-
 ## Call the almond profit function
+
 ```{r}
 # Load the R script containing the almond_profit_fun function
 source("almond_profit.R")
 ```
 
-## Running the almond profit model
+## Read in and prepare the data
+
 ```{r}
-# Read the CSV file
+# Read in the CSV file and clean the data
 jan_alm <- read_csv(here::here("data/clim.txt")) %>%
 
   # Split the single column into multiple columns based on quotes
@@ -57,7 +58,6 @@ jan_alm <- read_csv(here::here("data/clim.txt")) %>%
   summarise(precip_sum = sum(precip, na.rm = TRUE))
 
 ```
-
 
 ```{r}
 # Read the CSV file 
@@ -83,7 +83,7 @@ feb_alm <- read_csv(here::here("data/clim.txt")) %>%
   summarise(tempc_min = min(tmin_c, na.rm = TRUE))
 
 ```
-
+## Running the Almond profit model with default values.
 
 ```{r}
 # Calculate almond profit by passing February minimum temperatures and January precipitation sums as arguments to the almond_profit_fun function
@@ -98,7 +98,7 @@ paste0("Profit = ", almond_profit_output)
 ```{r}
 # Define ranges for acre and price_per_pound
 acre_range <- seq(20, 40, by = 2)  # Create a sequence of acre values 
-price_per_pound_range <- seq(200, 300, by = 25)  # Create a sequence of price per pound values 
+price_per_pound_range <- seq(1, 3, by = 0.25)  # Create a sequence of price per pound values 
 
 # Use expand.grid to create all possible combinations of acre, price_per_pound, and average_yield
 results <- expand.grid(acre = acre_range, price_per_pound = price_per_pound_range)
@@ -128,15 +128,26 @@ ggplot(results, aes(x = acre, y = price_per_pound, fill = profit)) +
 ```
 
 ### Second Graph
-```{r}
-ggplot(results, aes(x = acre, y = profit)) +
-  geom_point() +
-  labs(y = "Profit (USD)", x = "Acre")
-```
 
+```{r}
+ggplot(results, aes(x = price_per_pound, y = profit, group = price_per_pound)) +
+  geom_boxplot() +
+  labs(title = "Profit by Price per Pound",
+       y = "Profit (USD)", 
+       x = "Price per Pound (USD)") +
+  theme_classic()
+
+ggplot(results, aes(x = acre, y = profit, group = acre)) +
+  geom_boxplot() +
+  labs(title = "Profit by Acre",
+       y = "Profit (USD)", 
+       x = "Acre") +
+  theme_classic()
+```
 
 ## Short paragraph
 
+Based on the graphs, it appears that the profit (output) is pretty sensitive to the acre and price per pound parameters. As shown in the heatmap, Acre and Price per pound are correlated and as both increase, the profit increases as well. The 
 
 
 
